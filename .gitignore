@@ -1,11 +1,11 @@
 # Ignore Python compiled files
-__pycache__/
+**/eld_api/__pycache__/
 *.py[cod]
 *$py.class
 
 # Ignore virtual environment
 venv/
-env/
+eld_env/
 
 # Ignore package dependencies
 *.egg-info/

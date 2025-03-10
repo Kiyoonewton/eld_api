@@ -132,21 +132,21 @@ def generate_eld_logs(stops: List, starting_odometer: int = None) -> List[DailyL
             if is_first_day:
                 # First day: off-duty from midnight to 6:30 AM
                 add_duty_status(duty_statuses, 0.0, "off-duty")
-                add_remark(remarks, 0.0, "Early Morning Rest (Off-Duty)")
+                add_remark(remarks, 0.0, "")
             else:
                 # Subsequent days: sleeper-berth from midnight to 6:30 AM
                 add_duty_status(duty_statuses, 0.0, "sleeper-berth")
-                add_remark(remarks, 0.0, "Early Morning Rest (Sleeper Berth)")
+                add_remark(remarks, 0.0, "")
         else:
             # There are some statuses already in early morning
             # Check if midnight is covered, if not add the appropriate status
             if not any(abs(s["hour"]) < 0.01 for s in duty_statuses):
                 if is_first_day:
                     add_duty_status(duty_statuses, 0.0, "off-duty")
-                    add_remark(remarks, 0.0, "Early Morning Rest (Off-Duty)")
+                    add_remark(remarks, 0.0, "")
                 else:
                     add_duty_status(duty_statuses, 0.0, "sleeper-berth")
-                    add_remark(remarks, 0.0, "Early Morning Rest (Sleeper Berth)")
+                    add_remark(remarks, 0.0, "")
         
         # Ensure transition at 6:30 AM if not already present
         if not any(abs(s["hour"] - SLEEPER_END_HOUR) < 0.01 for s in duty_statuses):
@@ -266,7 +266,7 @@ def generate_eld_logs(stops: List, starting_odometer: int = None) -> List[DailyL
             if not is_last_day:
                 # Use 23.99 instead of 24.0 to stay within valid hour range (0-23)
                 add_duty_status(duty_statuses, 23.99, "sleeper-berth")
-                add_remark(remarks, 23.99, "Continuing Rest")
+                add_remark(remarks, 23.99, "")
                     
         # Set end location from last stop of the day
         last_stop = day_stops[-1]

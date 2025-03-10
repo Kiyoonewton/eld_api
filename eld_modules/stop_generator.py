@@ -268,6 +268,25 @@ def generate_stops(
         "duration": "0 hours",
         "estimatedArrival": current_timestamp.isoformat()
     })
+
+    # Handle early morning hours (midnight to 6:30 AM)
+    current_hour = current_timestamp.hour + (current_timestamp.minute / 60)
+    if current_hour < SLEEPER_END_HOUR:
+        # First day uses off-duty for early morning
+        stops.append({
+            "type": "off-duty",  # First day uses off-duty instead of sleeper-berth
+            "name": "Early Morning Rest (Off-Duty)",
+            "coordinates": [locations[0]["lng"], locations[0]["lat"]],
+            "duration": format_duration(SLEEPER_END_HOUR - current_hour),
+            "estimatedArrival": current_timestamp.isoformat()
+        })
+        
+        # Update time to 6:30 AM
+        current_timestamp = current_timestamp.replace(
+            hour=int(SLEEPER_END_HOUR),
+            minute=int((SLEEPER_END_HOUR % 1) * 60),
+            second=0
+        )
     
     # Add pre-trip inspection if at appropriate time
     current_hour = current_timestamp.hour + (current_timestamp.minute / 60)
@@ -345,6 +364,26 @@ def generate_stops(
                 
                 # Move to next morning
                 current_timestamp = current_timestamp + datetime.timedelta(hours=10)
+                
+                # Handle early morning for subsequent days
+                next_day_hour = current_timestamp.hour + (current_timestamp.minute / 60)
+                if next_day_hour < SLEEPER_END_HOUR:
+                    # For subsequent days, always use sleeper-berth for early morning hours
+                    stops.append({
+                        "type": "overnight",  # Use overnight type for sleeper-berth status
+                        "name": "Early Morning Rest (Sleeper Berth)",
+                        "coordinates": overnight_coordinates,
+                        "duration": format_duration(SLEEPER_END_HOUR - next_day_hour),
+                        "estimatedArrival": current_timestamp.isoformat()
+                    })
+                    
+                    # Update to 6:30 AM
+                    current_timestamp = current_timestamp.replace(
+                        hour=int(SLEEPER_END_HOUR),
+                        minute=int((SLEEPER_END_HOUR % 1) * 60),
+                        second=0
+                    )
+                
                 current_timestamp = next_driving_start_time(current_timestamp)
                 hours_of_driving_since_last_break = 0
                 days_on_road += 1
@@ -540,6 +579,26 @@ def generate_stops(
                 
                 # Move to next morning
                 current_timestamp = sleeper_time + datetime.timedelta(hours=10)
+                
+                # Handle early morning for subsequent days
+                next_day_hour = current_timestamp.hour + (current_timestamp.minute / 60)
+                if next_day_hour < SLEEPER_END_HOUR:
+                    # For subsequent days, always use sleeper-berth for early morning hours
+                    stops.append({
+                        "type": "overnight",  # Use overnight type for sleeper-berth status
+                        "name": "Early Morning Rest (Sleeper Berth)",
+                        "coordinates": overnight_coordinates,
+                        "duration": format_duration(SLEEPER_END_HOUR - next_day_hour),
+                        "estimatedArrival": current_timestamp.isoformat()
+                    })
+                    
+                    # Update to 6:30 AM
+                    current_timestamp = current_timestamp.replace(
+                        hour=int(SLEEPER_END_HOUR),
+                        minute=int((SLEEPER_END_HOUR % 1) * 60),
+                        second=0
+                    )
+                
                 current_timestamp = next_driving_start_time(current_timestamp)
                 hours_of_driving_since_last_break = 0
                 days_on_road += 1
